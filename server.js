@@ -1,6 +1,7 @@
 require('dotenv').config();
 const net = require('net');
 const Device = require('./device');
+const connectRedis = require('./connectors/redis');
 const cluster = require('cluster');
 const numCPUs = require('os').cpus().length;
 
@@ -35,6 +36,8 @@ if (cluster.isMaster) {
         console.log(`Worker ${process.pid} started on ${HOST}:${PORT}`);
     });
 
+        // connectRabbitMQ();
+    connectRedis();
     // Stockage global des devices
     global.devices = {};
 
