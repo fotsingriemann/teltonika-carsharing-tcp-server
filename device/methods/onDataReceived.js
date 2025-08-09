@@ -15,18 +15,18 @@ async function onDataReceived(data) {
             this.command = null;
         }, timeout);
     }
-    console.log(`${this.sock.remoteAddress}:${this.sock.remotePort} Says : ${data} `);
-    const hexToUtf8 = Buffer.from(data, 'hex').toString('utf8').trim();
-    console.log(hexToUtf8)
-    const hexToUtf8Trimmed = hexToUtf8.replace(/[^a-zA-Z0-9 ]/g, "");
-    console.log(hexToUtf8Trimmed)
+        console.log(`${this.sock.remoteAddress}:${this.sock.remotePort} Says : ${data.toString("hex")} `);
+        const hexToUtf8 = Buffer.from(data, 'hex').toString('utf8').trim();
+        console.log(hexToUtf8)
+        const hexToUtf8Trimmed = hexToUtf8.replace(/[^a-zA-Z0-9 ]/g, "");
+        console.log(hexToUtf8Trimmed)
 
     if (hexToUtf8Trimmed.length !== 15 || isNaN(hexToUtf8Trimmed)) {
         return this.onPacketReceived(data)
     }
     if (hexToUtf8Trimmed.length === 15) {
         console.log(!isNaN(hexToUtf8Trimmed), 'isnan test')
-        
+
         await this.onImeiReceived(hexToUtf8Trimmed)
         if (this.command && this.executionIndex < tcpCommands[this.command?.action]?.length && this.ackSent) {
             return this.execute()
