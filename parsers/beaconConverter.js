@@ -38,7 +38,7 @@ const readBeacon = (beaconString, timestamp) => {
                 timestamp 
             };
         }
-        if(beaconType == 01 || beaconType == 07) {
+        if(beaconType == '01' || beaconType == '07') {
             const namespace = hex.slice(currentByte, currentByte + 10).toString('hex')
             currentByte += 10
             const instanceId = hex.slice(currentByte, currentByte + 6).toString('hex')
@@ -52,7 +52,7 @@ const readBeacon = (beaconString, timestamp) => {
                 RSSI,
                 timestamp   
             }
-            if(beaconType == 07){
+            if(beaconType == '07'){
                 beacon.voltage = parseInt(hex.slice(currentByte, currentByte + 2).toString('hex'), 16)
                 currentByte += 2
                 beacon.temperature = parseInt(hex.slice(currentByte, currentByte + 2).toString('hex'), 16)
