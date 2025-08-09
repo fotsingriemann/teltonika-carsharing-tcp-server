@@ -17,8 +17,8 @@ if (cluster.isMaster) {
     const server = net.createServer(onClientConnection);
 
     //define host and port to run the server
-    const port = 8080;
-    const host = '127.0.0.1';
+    const port = process.env.SERVICE_PORT;
+    const host = process.env.SERVICE_HOST;
     //Start listening with the server on given port and host.
     server.listen(port, host, function () {
         console.log(`Server started on port ${port} at ${host}`);
