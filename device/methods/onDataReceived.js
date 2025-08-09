@@ -16,10 +16,11 @@ async function onDataReceived(data) {
         }, timeout);
     }
     console.log(`${this.sock.remoteAddress}:${this.sock.remotePort} Says : ${data} `);
-    const hexToUtf8 = Buffer.from(data, 'hex').toString('utf8').trim();
+    const hexToUtf8 = Buffer.from(data, 'hex')
+    console.log(hexToUtf8)
     const hexToUtf8Trimmed = hexToUtf8.replace(/[^a-zA-Z0-9 ]/g, "");
 
-    
+
 
     if (hexToUtf8Trimmed.length !== 15 || isNaN(hexToUtf8Trimmed)) {
         return this.onPacketReceived(data)
