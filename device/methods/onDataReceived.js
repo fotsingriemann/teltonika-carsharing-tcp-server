@@ -21,26 +21,27 @@ async function onDataReceived(data) {
     const hexToUtf8Trimmed = hexToUtf8.replace(/[^a-zA-Z0-9 ]/g, "");
     console.log(hexToUtf8Trimmed)
 
-    // if (hexToUtf8Trimmed.length !== 15 || isNaN(hexToUtf8Trimmed)) {
-    //     return this.onPacketReceived(data)
-    // }
-    // if (hexToUtf8Trimmed.length === 15) {
-    //     console.log(!isNaN(hexToUtf8Trimmed), 'isnan test')
-    //     await this.onImeiReceived(hexToUtf8Trimmed)
-    //     if (this.command && this.executionIndex < tcpCommands[this.command?.action]?.length && this.ackSent) {
-    //         return this.execute()
-    //     }
-    // }
-    // if (!this.awaitingResponse && !this.ackSent) {
-    //     console.log(`${this.sock.remoteAddress}:${this.sock.remotePort} Says: Sending Ack back to the device`);
-    //     const receiveAck = publisherChannel?.connection && publisherChannel?.connection?.stream?.writable ? '01' : '00';
-    //     const confirmation = Buffer.from(receiveAck, 'hex');
-    //     this.sock.write(confirmation);
-    //     this.ackSent = true
-    //     if (this.command) {
-    //         return this.execute()
-    //     }
-    // }
+    if (hexToUtf8Trimmed.length !== 15 || isNaN(hexToUtf8Trimmed)) {
+        return this.onPacketReceived(data)
+    }
+    if (hexToUtf8Trimmed.length === 15) {
+        console.log(!isNaN(hexToUtf8Trimmed), 'isnan test')
+        
+        await this.onImeiReceived(hexToUtf8Trimmed)
+        if (this.command && this.executionIndex < tcpCommands[this.command?.action]?.length && this.ackSent) {
+            return this.execute()
+        }
+    }
+    if (!this.awaitingResponse && !this.ackSent) {
+        console.log(`${this.sock.remoteAddress}:${this.sock.remotePort} Says: Sending Ack back to the device`);
+        const receiveAck = publisherChannel?.connection && publisherChannel?.connection?.stream?.writable ? '01' : '00';
+        const confirmation = Buffer.from(receiveAck, 'hex');
+        this.sock.write(confirmation);
+        this.ackSent = true
+        if (this.command) {
+            return this.execute()
+        }
+    }
 }
 
 module.exports = onDataReceived
