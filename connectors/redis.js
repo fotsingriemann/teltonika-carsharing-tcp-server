@@ -1,5 +1,6 @@
+require('dotenv').config();
 const Redis = require('ioredis');
-
+console.log(process.env.redisURL)
 const connectRedis = async () => {
     global.redisClient = new Redis({
         // password: process.env.redisPW,

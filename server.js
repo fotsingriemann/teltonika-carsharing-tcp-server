@@ -1,8 +1,8 @@
 require('dotenv').config();
 const net = require('net');
 const Device = require('./device');
-const connectRabbitMQ = require('./connectors/rabbitMQ');
-const connectRedis = require('./connectors/redis');
+// const connectRabbitMQ = require('./connectors/rabbitMQ');
+// const connectRedis = require('./connectors/redis');
 const cluster = require('cluster');
 const numCPUs = require('os').cpus().length;
 
@@ -25,8 +25,8 @@ if (cluster.isMaster) {
     });
 
     //Connecting RabbitMQ publisher/consumer
-    connectRabbitMQ();
-    connectRedis();
+    // connectRabbitMQ();
+    // connectRedis();
 
     global.devices = {};
 

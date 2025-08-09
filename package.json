@@ -11,7 +11,8 @@
     "@turf/turf": "6.5.0",
     "amqplib": "0.10.3",
     "complete-teltonika-parser": "0.3.4",
-    "dotenv": "^16.0.1",
+    "concaveman": "^1.1.1",
+    "dotenv": "^16.6.1",
     "ioredis": "5.3.2",
     "point-in-polygon-hao": "1.1.0"
   },
