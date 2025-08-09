@@ -18,7 +18,8 @@ async function onDataReceived(data) {
     console.log(`${this.sock.remoteAddress}:${this.sock.remotePort} Says : ${data} `);
     const hexToUtf8 = Buffer.from(data, 'hex').toString('utf8').trim();
     console.log(hexToUtf8)
-    // const hexToUtf8Trimmed = hexToUtf8.replace(/[^a-zA-Z0-9 ]/g, "");
+    const hexToUtf8Trimmed = hexToUtf8.replace(/[^a-zA-Z0-9 ]/g, "");
+    console.log(hexToUtf8Trimmed)
 
     // if (hexToUtf8Trimmed.length !== 15 || isNaN(hexToUtf8Trimmed)) {
     //     return this.onPacketReceived(data)
