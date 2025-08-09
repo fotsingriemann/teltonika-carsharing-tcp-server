@@ -40,7 +40,6 @@ async function onRecord(parsed) {
         }).filter(avlData => !!avlData)
 
         const record = JSON.stringify({ message: this.imei, data: parsedAVL, beacons: beacons})
-        console.log(record)
 
         publisherChannel.sendToQueue('record', Buffer.from(record))
     }
