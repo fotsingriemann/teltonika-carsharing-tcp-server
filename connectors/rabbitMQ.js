@@ -1,49 +1,65 @@
 const amqp = require('amqplib/callback_api');
 
 const connectRabbitMQ = () => {
-    // Ensure URL has proper protocol (amqp:// or amqps://)
-    const url = process.env.rabbitMQUrl.startsWith('amqp') 
-        ? process.env.rabbitMQUrl 
-        : `amqp://${process.env.rabbitMQUrl}`;
-    
-    amqp.connect(`${url}?heartbeat=60`, async function (err, conn) {
+    // 1. Configuration robuste de la connexion
+    const options = {
+        protocol: 'amqp',
+        hostname: process.env.RABBITMQ_HOST || 'bi.lewootrack.com',
+        port: process.env.RABBITMQ_PORT || 5672,
+        username: process.env.RABBITMQ_USER || 'teltonika',
+        password: process.env.RABBITMQ_PASS || 'tracking123',
+        vhost: process.env.RABBITMQ_VHOST || '/teltonika',
+        frameMax: 8192, // Doit correspondre à la config serveur
+        heartbeat: 60
+    };
+
+    // 2. Connexion avec gestion d'erreur améliorée
+    amqp.connect(options, (err, conn) => {
         if (err) {
-            console.error("MQ Connection Error:", err.message);
-            return setTimeout(connectRabbitMQ, 1000);
+            console.error("MQ Connection Error:", {
+                message: err.message,
+                stack: err.stack,
+                config: options // Log la config utilisée
+            });
+            return setTimeout(connectRabbitMQ, 5000);
         }
 
-        conn.on("error", function (err) {
+        // 3. Gestion des événements de connexion
+        conn.on("error", (err) => {
             if (err.message !== "Connection closing") {
                 console.error("MQ Connection Error:", err.message);
             }
         });
 
-        conn.on("close", function () {
-            console.error("MQ Connection Closed - Reconnecting...");
-            return setTimeout(connectRabbitMQ, 1000);
+        conn.on("close", () => {
+            console.log("MQ Connection Closed - Reconnecting...");
+            global.publisherChannel = null; // Nettoyage
+            setTimeout(connectRabbitMQ, 3000);
         });
 
         console.log("MQ Connected Successfully");
-        
-        try {
-            // Create channel
-            const ch = await conn.createChannel();
-            await ch.assertQueue('records');
-            
-            // Store connection and channel globally
-            global.rabbitMQConn = conn;
-            global.rabbitMQChannel = ch;
-            
-            console.log("MQ Channel Created and Queue Asserted");
-        } catch (channelErr) {
-            console.error("MQ Channel Error:", channelErr.message);
-            conn.close();
-            setTimeout(connectRabbitMQ, 1000);
-        }
-    });
-}
 
-// Initial connection
-connectRabbitMQ();
+        // 4. Création du channel avec gestion d'erreur
+        conn.createChannel((err, channel) => {
+            if (err) {
+                console.error("Channel Creation Error:", err);
+                return conn.close();
+            }
+
+            global.publisherChannel = channel;
+            console.log("Channel Created");
+
+            // 5. Assertion de la queue avec callback
+            channel.assertQueue('records', { durable: true }, (err) => {
+                if (err) {
+                    console.error("Queue Assertion Error:", err);
+                    channel.close();
+                } else {
+                    console.log("Queue 'records' is ready");
+                }
+            });
+        });
+    });
+};
 
 module.exports = connectRabbitMQ;
