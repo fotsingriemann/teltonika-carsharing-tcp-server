@@ -1,39 +1,54 @@
 require('dotenv').config();
 const net = require('net');
 const Device = require('./device');
-// const connectRabbitMQ = require('./connectors/rabbitMQ');
-// const connectRedis = require('./connectors/redis');
 const cluster = require('cluster');
 const numCPUs = require('os').cpus().length;
 
+// Configuration
+const PORT = process.env.SERVICE_PORT || 6022;
+const HOST = process.env.SERVICE_HOST || '127.0.0.1';
 
 if (cluster.isMaster) {
-    // Create a worker for each CPU core
+    console.log(`Master ${process.pid} is running with ${numCPUs} workers`);
+    
+    // Gestion des workers qui crash
+    cluster.on('exit', (worker, code, signal) => {
+        console.error(`Worker ${worker.process.pid} died (${signal || code}). Restarting...`);
+        cluster.fork();
+    });
+
+    // Création des workers
     for (let i = 0; i < numCPUs; i++) {
         cluster.fork();
     }
 } else {
-    //Create an instance of the server
+    // Worker process
     const server = net.createServer(onClientConnection);
-
-    //define host and port to run the server
-    const port = process.env.SERVICE_PORT;
-    const host = process.env.SERVICE_HOST;
-    //Start listening with the server on given port and host.
-    server.listen(port, host, function () {
-        console.log(`Server started on port ${port} at ${host}`);
+    
+    // Gestion des erreurs du serveur
+    server.on('error', (err) => {
+        console.error('Server error:', err);
+        process.exit(1);
     });
 
-    //Connecting RabbitMQ publisher/consumer
-    // connectRabbitMQ();
-    // connectRedis();
+    server.listen(PORT, HOST, () => {
+        console.log(`Worker ${process.pid} started on ${HOST}:${PORT}`);
+    });
 
+    // Stockage global des devices
     global.devices = {};
 
-    //Declare connection listener function
+    // Gestion des connexions clients
     function onClientConnection(sock) {
-        console.log(`${sock.remoteAddress}:${sock.remotePort} Connected`);
+        const clientInfo = `${sock.remoteAddress}:${sock.remotePort}`;
+        console.log(`New connection from ${clientInfo} (Worker ${process.pid})`);
+        
+        // Gestion des erreurs de socket
+        sock.on('error', (err) => {
+            console.error(`Socket error with ${clientInfo}:`, err.message);
+        });
 
-        new Device(sock)
-    };
+        // Création d'un nouveau device
+        new Device(sock);
+    }
 }
