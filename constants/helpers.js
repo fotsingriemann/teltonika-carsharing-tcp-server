@@ -1,4 +1,4 @@
-const {payloadObj, sensorObj, obdObj} = require('./object')
+const {payloadObj, sensorObj, obdObj, DEFAULT_EVENT_FLAG} = require('./object')
 
 const binaryToDecimal = (binaryString) => {
   return parseInt(binaryString, 2);
