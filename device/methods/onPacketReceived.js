@@ -10,7 +10,7 @@ async function onPacketReceived(data) {
     try {
         const parsed = new ProtocolParser(data.toString('hex'))
         this.failedCRCRetry = 0 //resets failed CRC retries if any
-        console.log(`${this.sock.remoteAddress}:${this.sock.remotePort}:`, parsed, parsed.Content, 'parsed')
+        // console.log(`${this.sock.remoteAddress}:${this.sock.remotePort}:`, parsed, parsed.Content, 'parsed')
 
         const currentExecutionCmd = this.command?.action ? tcpCommands[this.command?.action] && tcpCommands[this.command?.action][this.executionIndex] : null;
         if (!parsed.Content.isResponse && !currentExecutionCmd?.recordAsResponse) {

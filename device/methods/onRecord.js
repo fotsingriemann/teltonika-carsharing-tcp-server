@@ -2,8 +2,7 @@ const { beaconConverter, securityFlagConverter } = require('../../parsers');
 const { securityFlagsP2 } = require('../../constants/securityFlags');
 const toBytesInt32 = require('../../utils/toBytesInt32')
 
-
-
+const {processData} = require('../../constants/helpers')
 
 async function onRecord(parsed) {
     this.ackResp = false;
@@ -44,12 +43,14 @@ async function onRecord(parsed) {
 
         const record = JSON.stringify({ message: this.imei, data: parsedAVL, beacons: beacons})
 
-        console.log(record)
+        processData(record)
         publisherChannel.sendToQueue('record', Buffer.from(record))
     }
     const dataAmount = parsed.Quantity1;
     var sizeBytes = Buffer.from(toBytesInt32(dataAmount), 'hex');
     this.sock.write(sizeBytes)
 }
+
+
 
 module.exports = onRecord;
