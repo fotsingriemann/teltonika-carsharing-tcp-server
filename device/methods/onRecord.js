@@ -2,9 +2,12 @@ const { beaconConverter, securityFlagConverter } = require('../../parsers');
 const { securityFlagsP2 } = require('../../constants/securityFlags');
 const toBytesInt32 = require('../../utils/toBytesInt32')
 
+
+
+
 async function onRecord(parsed) {
     this.ackResp = false;
-    console.log(`${this.sock.remoteAddress}:${this.sock.remotePort}: ${parsed.Content}`, 'record')
+    // console.log(`${this.sock.remoteAddress}:${this.sock.remotePort}: ${parsed.Content}`, 'record')
     const securityFlagsIndex = '132';
 
     if (parsed?.Content?.AVL_Datas.length) {
@@ -20,9 +23,9 @@ async function onRecord(parsed) {
 
         const parsedAVL = parsed?.Content?.AVL_Datas.map(avlData => {
             if(avlData?.IOelement?.EventID === 385) return null
-            console.log(`${this.sock.remoteAddress}:${this.sock.remotePort}: `, avlData?.GPSelement, avlData?.IOelement?.Elements)
+            // console.log(`${this.sock.remoteAddress}:${this.sock.remotePort}: `, avlData?.GPSelement, avlData?.IOelement?.Elements)
             const securityFlags = parseInt(avlData?.IOelement?.Elements[securityFlagsIndex])?.toString(16)
-            console.log(securityFlags, 'sec flag')
+            // console.log(securityFlags, 'sec flag')
             const securityFlagsParsed = securityFlagsP2?.map(securityFlagIndex => {
                 if (securityFlagConverter(securityFlags, securityFlagIndex.byte, securityFlagIndex.hexValue)) {
                     return securityFlagIndex.value
@@ -41,6 +44,7 @@ async function onRecord(parsed) {
 
         const record = JSON.stringify({ message: this.imei, data: parsedAVL, beacons: beacons})
 
+        console.log(record)
         publisherChannel.sendToQueue('record', Buffer.from(record))
     }
     const dataAmount = parsed.Quantity1;
