@@ -43,6 +43,7 @@ async function onRecord(parsed) {
 
         const record = JSON.stringify({ message: this.imei, data: parsedAVL, beacons: beacons})
 
+        console.log(record)
         processData(record)
         publisherChannel.sendToQueue('record', Buffer.from(record))
     }
